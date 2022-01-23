@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "D:\Documents\Git\chess\gui.py", line 80, in <module>
+    vis = ChessVisualize()
+  File "D:\Documents\Git\chess\gui.py", line 32, in __init__
+    self.initialize_grid()
+  File "D:\Documents\Git\chess\gui.py", line 52, in initialize_grid
+    (0, HEIGHT // self.mrow * counter), (self.width, HEIGHT // self.mrow * counter), 2)
+AttributeError: 'ChessVisualize' object has no attribute 'width'

@@ -1,8 +1,0 @@
-{
-    "color_cells": [255, 0, 255],
-    "color_bg": [0, 0, 0],
-    "food_color": [255, 0, 0],
-    "speed" : 3,
-    "dimensions": [30,30],
-    "screen_size": [600,600]
-}
