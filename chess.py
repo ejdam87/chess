@@ -1,11 +1,15 @@
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Callable
+import sys
+
+Board = List[List[int]]     # Board is 2D matrix
+Figure = Tuple[str, int]    # Figure is tuple of figure's name and number of plazer
+Cell = Tuple[int, int]      # Cell is (x, y) coord on board
+
+SIZE = 8    # Chessboard will contain SIZE x SIZE cells
 
 
-Board = List[List[int]]
-Figure = Tuple[str, int]
-Cell = Tuple[int, int]
+sys.stderr = open("x.txt", "w")
 
-SIZE = 8
 
 class Chess:
 
@@ -37,9 +41,9 @@ class Chess:
         # Initialize king's positions (need to be done by setup method)
         self.king_pos = {}
 
-        # self.setup_board()
+        self.setup_classic_board()
 
-        self.setup_test()
+        # self.setup_test()
 
     def move(self, from_: Cell, to: Cell) -> None:
         """
@@ -90,12 +94,15 @@ class Chess:
         # if not successful => it is mate
 
         for poss in possibilities:
-            self.move((x, y), poss)
+            
+            old = self.king_pos[player]
+            self.king_pos[player] = poss
+
             if not self.is_endangered(player):
-                self.move(poss, (x, y))
+                self.king_pos[player] = old
                 return False
 
-            self.move(poss, (x, y))
+            self.king_pos[player] = old
 
         return True
 
@@ -214,6 +221,9 @@ class Chess:
 
     def figure_on(self, x: int, y: int) -> Optional[str]:
 
+        if x < 0 or x >= self.size or y < 0 or y >= self.size:
+            return None
+
         if self.board[y][x] == "empty":
             return None
 
@@ -247,8 +257,10 @@ class Chess:
 
     # Player 1 always down !!!
     def move_pawn(self, x: int, y: int, player: int) -> List[Cell]:
-        
+
         options = []
+
+        half = self.size // 2
 
         if player == 1:
             # Going up
@@ -260,6 +272,10 @@ class Chess:
 
             if not self.figure_on(x, y - 1):
                 options.append((x, y - 1))
+
+            if y - 2 >= half:
+                if not self.figure_on(x, y - 2):
+                    options.append((x, y - 2))
         else:
             # Going down
             if self.figure_on(x + 1, y + 1):
@@ -270,6 +286,10 @@ class Chess:
 
             if not self.figure_on(x, y + 1):
                 options.append((x, y + 1))
+
+            if y + 2 <= half:
+                if not self.figure_on(x, y + 2):
+                    options.append((x, y + 2))
 
         return self.filter_options(x, y, options)
 
@@ -354,7 +374,71 @@ class Chess:
 
         return self.filter_options(x, y, options)
 
-    def play(self) -> None:
+
+
+    def play_round(self,
+                   on_offence: int,
+                   pick_method: Callable[[], Cell],
+                   move_method: Callable[[], Cell]) -> None:
+        
+        
+        from_x, from_y = pick_method(on_offence)
+
+        figure = self.figure_on(from_x, from_y)
+        if figure == "pawn":
+            able = self.assign_move[figure](from_x, from_y, on_offence)
+        else:
+            able = self.assign_move[figure](from_x, from_y)
+
+        des_x, des_y = move_method(able)
+        self.move((from_x, from_y), (des_x, des_y))
+
+        if figure == "king":
+            self.king_pos[on_move] = (des_x, des_y)
+
+
+
+    # --- Text-play
+    def text_pick(self, on_move: int) -> Cell:
+        """
+        Method for picking figure to move
+        """
+
+        initial = True
+        # Wait for valid move
+        while initial or self.board[y][x] == "empty" or self.board[y][x][1] != on_move:
+
+            if not initial:
+                print("Invalid cell to pick -- Try another one")
+
+            formatted = input("Select cell to move (x, y): ")
+            x, y = self.from_formatted(formatted)
+
+            if self.is_inbound(x, y):
+                initial = False
+            else:
+                print("Out of bounds!")
+
+        return x, y
+
+    def text_move(self, able: List[Cell]) -> Cell:
+        """
+        Method for picking place to move figure
+        """
+
+        initial = True
+        while initial or (x, y) not in able:
+
+            if not initial:
+                print("Cannot move here!")
+
+            initial = False
+            formatted = input("Where would you like to move? (x, y): ")
+            x, y = self.from_formatted(formatted)
+
+        return x, y
+
+    def text_play(self) -> None:
 
         on_move = 1
         on_defence = 2
@@ -370,51 +454,16 @@ class Chess:
                 print("*" * 20)
                 print("King is endangered")
                 print("*" * 20)
-                danger = False
-            
-            initial = True
 
-            # Wait for valid move
-            while initial or self.board[y][x] == "empty" or self.board[y][x][1] != on_move:
+            self.play_round(on_move, self.text_pick, self.text_move)
 
-                if not initial:
-                    print("Invalid cell to pick -- Try another one")
-
-                formatted = input("Select cell to move (x, y): ")
-                x, y = self.from_formatted(formatted)
-
-                if self.is_inbound(x, y):
-                    initial = False
-                else:
-                    print("Out of bounds!")
-
-            figure = self.figure_on(x, y)
-
-            print("Figure: ", figure)
-
-            if figure == "pawn":
-                able = self.assign_move[figure](x, y, on_move)
-            else:
-                able = self.assign_move[figure](x, y)
-
-            print("You can choose to move to:")
-            for possibility in able:
-                print(self.from_cell(possibility), end = " ")
-            print()
-
-            formatted = input("Where would you like to move? (x, y): ")
-            desx, desy = self.from_formatted(formatted)
-            self.move((x, y), (desx, desy))
-
-            if figure == "king":
-                self.king_pos[on_move] = (desx, desy)
-
-            # Print later for better look
             danger = self.is_endangered(on_defence)
-
             on_move, on_defence = on_defence, on_move
 
-            # Space for next move
-            for _ in range(15):
+            for i in range(10):
                 print()
 
+        return on_defence
+
+chess = Chess()
+chess.text_play()
