@@ -2,12 +2,7 @@ from pygame.locals import *
 import pygame as pg
 import chess
 import sys
-from typing import Tuple, List
-
-Board = List[List[int]]     # Board is 2D matrix
-Figure = Tuple[str, int]    # Figure is tuple of figure's name and number of plazer
-Cell = Tuple[int, int]      # Cell is (x, y) coord on board
-Color = Tuple[int, int, int]
+from type_aliases import *
 
 
 WIDTH = 600
@@ -17,6 +12,7 @@ STATUS_BAR_HEIGHT = 50
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+RED = (180, 0, 0)
 BG1 = (206, 189, 121)
 BG2 = (84, 102, 75)
 
@@ -52,7 +48,7 @@ class ChessVisualize:
         self.initialize_grid()
         self.redraw_board()
 
-    def initialize_grid(self) -> None:
+    def initialize_grid(self, endangered = None) -> None:
 
         self.screen.fill(BG1)
         dx = 0
@@ -63,6 +59,13 @@ class ChessVisualize:
 
                 outline = 0 if fill else 1
                 pg.draw.rect(self.screen, BG2, (dx, dy, self.grid_node_width, self.grid_node_height), outline)
+
+                if endangered and (x, y) in endangered:
+
+                    center_x = dx + self.grid_node_width // 2
+                    center_y = dy + self.grid_node_height // 2
+                    pg.draw.circle(self.screen, RED, (center_x, center_y), 10, 0)
+
                 fill = not fill
                 dx += self.grid_node_width
 
@@ -73,9 +76,9 @@ class ChessVisualize:
 
         pg.display.update()        
 
-    def redraw_board(self) -> None:
+    def redraw_board(self, endangered = None) -> None:
 
-        self.initialize_grid()
+        self.initialize_grid(endangered)
         dx = 0
         dy = 0
         for x in range(self.column_count):
@@ -109,17 +112,23 @@ class ChessVisualize:
                 return
 
             x, y = cell
+            figure = self.engine.figure_on(x, y)
+
             # Want to move empty cell or opponent's cell
             if self.engine.board[y][x][1] != on_offence:
                 return False
-
-            figure = self.engine.figure_on(x, y)
+            
             if figure == "pawn":
                 self.possible_moves = self.engine.assign_move[figure](x, y, on_offence)
             else:
                 self.possible_moves = self.engine.assign_move[figure](x, y)
 
             self.selected = cell, figure
+            self.redraw_board(self.possible_moves)
+            if not figure:
+                self.update_status_bar(f"Empty cell")
+            else:
+                self.update_status_bar(f"Chosen cell: {self.engine.from_cell(cell)} ({figure})")
 
         else:
 
@@ -153,17 +162,23 @@ class ChessVisualize:
 
     def update_status_bar(self, to_show: str) -> None:
 
+        self.status_bar_text = to_show
         x_center, y_center = self.screen.get_rect().center
         y_center += HEIGHT // 2
         text = self.font.render(to_show, True, BLACK, BG1)
-        textRect = text.get_rect(center = (x_center, y_center))
-        self.screen.blit(text, textRect)
+        text_rect = text.get_rect(center = (x_center, y_center))
+
+        # Overdraw previous text
+        pg.draw.rect(self.screen, BG1, (0, HEIGHT, WIDTH, STATUS_BAR_HEIGHT))
+        self.screen.blit(text, text_rect)
 
         pg.display.update()
 
     def run(self) -> None:
 
         on_offence, on_defence = 1, 2
+        player_color = {1: "White", 2: "Black"}
+        self.update_status_bar(f"Player on move: {player_color[on_offence]}")
 
         while True:
             for event in pg.event.get():
@@ -181,6 +196,7 @@ class ChessVisualize:
                     if success and finished_move:
                         self.redraw_board()
                         on_offence, on_defence = on_defence, on_offence
+                        self.update_status_bar(f"Player on move: {player_color[on_offence]}")
 
             pg.display.update()
             self.CLOCK.tick(self.fps)

@@ -1,8 +1,6 @@
 from typing import List, Tuple, Optional, Callable
+from type_aliases import *
 
-Board = List[List[int]]     # Board is 2D matrix
-Figure = Tuple[str, int]    # Figure is tuple of figure's name and number of plazer
-Cell = Tuple[int, int]      # Cell is (x, y) coord on board
 
 SIZE = 8    # Chessboard will contain SIZE x SIZE cells
 
@@ -36,6 +34,8 @@ class Chess:
 
         # Initialize king's positions (need to be done by setup method)
         self.king_pos = {}
+
+        # Place the figures
         self.setup_classic_board()
 
         # self.setup_test()
@@ -55,7 +55,7 @@ class Chess:
 
 
 
-    # --- Coordinate transformation (e.g from A5 to col 0 row 5)
+    # --- Coordinate transformation (e.g from A5 to col 0 row 5 or reversed)
     def from_formatted(self, with_letter: str) -> Cell:
 
         col = ord(with_letter[0]) - ord("A")
@@ -129,25 +129,11 @@ class Chess:
         return self.king_pos[player] in possible
 
 
-    def get_able_to_move(self, player: int) -> List[Figure]:
-        
-        res = []
-        for row in self.board:
-            for cell in row:
-
-                if cell == "empty":
-                    continue
-
-                if cell[1] == player:
-                    res.append(cell)
-
-        return res
-
-
-
     # --- Setting boards
     def setup_test(self) -> None:
-
+        """
+        Method to place figure for testing
+        """
         self.board[3][3] = ("king", 2)
         self.board[2][0] = ("tower", 1)
         self.board[1][0] = ("king", 1)
@@ -171,8 +157,7 @@ class Chess:
     # ---
 
 
-
-    def draw_board(self) -> None:
+    def draw_column_numbering(self) -> None:
 
         numbering = f" X "
         # Column numbering
@@ -182,6 +167,9 @@ class Chess:
             print(f"  {letter}  ", end = "")
         print()
 
+    def draw_board(self) -> None:
+
+        self.draw_column_numbering()
         line = "+" + "----+" * self.size
         for row in range(self.size):
             
@@ -206,13 +194,7 @@ class Chess:
             print()
 
         print(" " * len(numbering) + line)
-
-        # Column numbering
-        print(" " * len(numbering), end = "")
-        for col in range(self.size):
-            letter = chr(ord("A") + col)
-            print(f"  {letter}  ", end = "")
-        print()
+        self.draw_column_numbering()
 
     def figure_on(self, x: int, y: int) -> Optional[str]:
 
@@ -253,8 +235,8 @@ class Chess:
     # Player 1 always down !!!
     def move_pawn(self, x: int, y: int, player: int) -> List[Cell]:
 
+        # Pawn can go straight (2 if he is on his own half) and kill to sides
         options = []
-
         half = self.size // 2
 
         if player == 1:
@@ -290,8 +272,8 @@ class Chess:
 
     def move_king(self, x: int, y: int) -> List[Cell]:
         
+        # King can move wherever to his whole neighbourhood
         options = []
-
         for dx in range(-1, 2):
             for dy in range(-1, 2):
 
@@ -304,51 +286,48 @@ class Chess:
 
     def move_queen(self, x: int, y: int) -> List[Cell]:
         
+        # Queen can move same as tower and shooter together
         options = self.move_tower(x, y)
         options += self.move_shooter(x, y)
         return list(set(options))
 
     def move_tower(self, x: int, y: int) -> List[Cell]:
         
+        # Tower can move infinitely but can change only one coord
         options = []
+        directions = [(-1, 0), (1, 0), (0, 1), (0, -1)]
+        dx = 1
+        dy = 1
 
-        dx = x - 1
-        while dx >= 0:
-            options.append((dx, y))
-            if self.figure_on(dx, y):
-                break
-            dx -= 1
+        while x - dx >= 0 or x + dx < self.size or y - dy >= 0 or y + dy < self.size:
 
-        dx = x + 1
-        while dx < self.size:
-            options.append((dx, y))
-            if self.figure_on(dx, y):
-                break
+            for direction in list(directions):
+                mx, my = dx * direction[0], dy * direction[1]
+
+                # If we hit a figure, this direction is over
+                if self.figure_on(x + mx, y + my):
+
+                    directions.remove(direction)
+                    # If the last figure is enemy's, add it
+                    if self.board[y + my][x + mx][1] != self.board[y][x][1]:
+                        options.append((x + mx, y + my))
+                    continue
+
+                options.append((x + mx, y + my))
+
             dx += 1
-
-        dy = y - 1
-        while dy >= 0:
-            options.append((x, dy))
-            if self.figure_on(x, dy):
-                break
-            dy -= 1
-
-        dy = y + 1
-        while dy < self.size:
-            options.append((x, dy))
-            if self.figure_on(x ,dy):
-                break
             dy += 1
 
         return self.filter_options(x, y, options)
 
     def move_horse(self, x: int, y: int) -> List[Cell]:
         
+        # Horse can move in "L-s" every direction
         options = []
-        for dx in [-3, -1, 1, 3]:
-            for dy in [-3, -1, 1, 3]:
+        for dx in [-2, -1, 1, 2]:
+            for dy in [-2, -1, 1, 2]:
 
-                if dx == dy:
+                if abs(dx) == abs(dy):
                     continue
 
                 options.append((x + dx, y + dy))
@@ -357,13 +336,28 @@ class Chess:
 
     def move_shooter(self, x: int, y: int) -> List[Cell]:
 
+        # Shooter can move in diagonal lines
         options = []
+        directions = [(-1, -1), (1, 1), (1, -1), (-1, 1)]
 
-        dx = 0
-        dy = 0
-        while (x + dx >= 0 and x + dx < self.size) or (y + dy >= 0 and y + dy < self.size):
-            options.append((x - dx, y - dy))
-            options.append((x + dx, y + dy))
+        dx = 1
+        dy = 1
+        while x - dx >= 0 or x + dx < self.size or y - dy >= 0 or y + dy < self.size:
+
+            for direction in list(directions):
+                mx, my = dx * direction[0], dy * direction[1]
+
+                # If there is a figure in our direction we cannot go this direction anymore
+                if self.figure_on(x + mx, y + my):
+
+                    directions.remove(direction)
+                    # If the last figure is enemy's, add it
+                    if self.board[y + my][x + mx][1] != self.board[y][x][1]:
+                        options.append((x + mx, y + my))
+                    continue
+
+                options.append((x + mx, y + my))
+
             dx += 1
             dy += 1
 
@@ -459,3 +453,8 @@ class Chess:
 
         return on_defence
 
+
+if __name__ == "__main__":
+
+    chess = Chess()
+    chess.text_play()
