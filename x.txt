@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "D:\Documents\Git\chess\gui.py", line 3, in <module>
+    import chess
+  File "D:\Documents\Git\chess\chess.py", line 468, in <module>
+  File "D:\Documents\Git\chess\chess.py", line 457, in text_play
+    for i in range(8):
+  File "D:\Documents\Git\chess\chess.py", line 385, in play_round
+    else:
+  File "D:\Documents\Git\chess\chess.py", line 414, in text_pick
+    else:
+EOFError: EOF when reading a line

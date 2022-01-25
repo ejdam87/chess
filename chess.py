@@ -1,14 +1,10 @@
 from typing import List, Tuple, Optional, Callable
-import sys
 
 Board = List[List[int]]     # Board is 2D matrix
 Figure = Tuple[str, int]    # Figure is tuple of figure's name and number of plazer
 Cell = Tuple[int, int]      # Cell is (x, y) coord on board
 
 SIZE = 8    # Chessboard will contain SIZE x SIZE cells
-
-
-sys.stderr = open("x.txt", "w")
 
 
 class Chess:
@@ -40,7 +36,6 @@ class Chess:
 
         # Initialize king's positions (need to be done by setup method)
         self.king_pos = {}
-
         self.setup_classic_board()
 
         # self.setup_test()
@@ -451,7 +446,6 @@ class Chess:
             print("*" * 20)
 
             if danger:
-                print("*" * 20)
                 print("King is endangered")
                 print("*" * 20)
 
@@ -460,10 +454,8 @@ class Chess:
             danger = self.is_endangered(on_defence)
             on_move, on_defence = on_defence, on_move
 
-            for i in range(10):
+            for i in range(8):
                 print()
 
         return on_defence
 
-chess = Chess()
-chess.text_play()
