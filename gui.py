@@ -49,7 +49,12 @@ class ChessVisualize:
         self.redraw_board()
 
     def initialize_grid(self, endangered = None) -> None:
+        """
+        Creates chess grid
 
+        endangered - Is a list of cells which are endangered
+                   - It is used only when visualizing player options to attack
+        """
         self.screen.fill(BG1)
         dx = 0
         dy = 0
@@ -62,9 +67,12 @@ class ChessVisualize:
 
                 if endangered and (x, y) in endangered:
 
-                    center_x = dx + self.grid_node_width // 2
-                    center_y = dy + self.grid_node_height // 2
-                    pg.draw.circle(self.screen, RED, (center_x, center_y), 10, 0)
+                    if self.engine.board[y][x] == "empty":  # If there is empty cell, we wanna show a little circle
+                        center_x = dx + self.grid_node_width // 2
+                        center_y = dy + self.grid_node_height // 2
+                        pg.draw.circle(self.screen, RED, (center_x, center_y), 10, 0)
+                    else:   # If there is oppponent's figure, we wanna fill whole cell with red
+                        pg.draw.rect(self.screen, RED, (dx, dy, self.grid_node_width, self.grid_node_height), 0)
 
                 fill = not fill
                 dx += self.grid_node_width
@@ -77,7 +85,12 @@ class ChessVisualize:
         pg.display.update()        
 
     def redraw_board(self, endangered = None) -> None:
+        """
+        Show all changes made to the board
 
+        endangered - Is a list of cells which are endangered
+                   - It is used only when visualizing player options to attack
+        """
         self.initialize_grid(endangered)
         dx = 0
         dy = 0
