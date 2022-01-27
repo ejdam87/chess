@@ -45,8 +45,33 @@ class ChessVisualize:
 
         self.margin = (self.grid_node_width - self.figure_width) // 2
 
+        self.textures = {
+            "pawn": ((self.load_texture("textures/pawn_white.png")), self.load_texture("textures/pawn_black.png")),
+            "horse" : ((self.load_texture("textures/knight_white.png")), self.load_texture("textures/knight_black.png")),
+            "tower" : ((self.load_texture("textures/rook_white.png")), self.load_texture("textures/rook_black.png")),
+            "shooter" : ((self.load_texture("textures/bishop_white.png")), self.load_texture("textures/bishop_black.png")),
+            "king" : ((self.load_texture("textures/king_white.png")), self.load_texture("textures/king_black.png")),
+            "queen" : ((self.load_texture("textures/queen_white.png")), self.load_texture("textures/queen_black.png"))
+        }
+
         self.initialize_grid()
         self.redraw_board()
+
+    def load_texture(self, path: str):
+
+        im = pg.image.load(path)
+        im_width, im_height = im.get_size()
+
+        if im_height > im_width:
+            ratio = im_width / im_height
+        else:
+            ratio = im_height / im_width
+
+        texture_height = int(self.grid_node_height * 0.8)
+        texture_width = int(texture_height * ratio)
+
+        texture = pg.transform.smoothscale(im, (texture_width, texture_height))
+        return texture
 
     def initialize_grid(self, endangered = None) -> None:
         """
@@ -101,11 +126,9 @@ class ChessVisualize:
                     dy += self.grid_node_height
                     continue
 
-                elif self.engine.board[y][x][1] == 1:
-                    pg.draw.rect(self.screen, WHITE, (dx + self.margin, dy + self.margin, self.figure_width, self.figure_height))
-
-                else:
-                    pg.draw.rect(self.screen, BLACK, (dx + self.margin, dy + self.margin, self.figure_width, self.figure_height))
+                figure = self.engine.figure_on(x, y)
+                texture = self.textures[figure][self.engine.board[y][x][1] - 1]
+                self.screen.blit(texture, (dx + self.grid_node_width // 4, dy + self.grid_node_width // 10))
 
                 dy += self.grid_node_height
             dx += self.grid_node_width
@@ -211,8 +234,13 @@ class ChessVisualize:
                         on_offence, on_defence = on_defence, on_offence
                         self.update_status_bar(f"Player on move: {player_color[on_offence]}")
 
+                    danger = self.engine.is_endangered(on_offence)
+                    if self.engine.check_mate(on_offence, danger):
+                        self.update_status_bar(f"Chess mate!")
+
             pg.display.update()
             self.CLOCK.tick(self.fps)
+
 
 
 vis = ChessVisualize()
