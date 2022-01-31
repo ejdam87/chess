@@ -29,8 +29,6 @@ class ChessVisualize:
         pg.display.set_caption("Chess with Ejdam")
         self.screen = pg.display.set_mode((WIDTH, HEIGHT + STATUS_BAR_HEIGHT))
 
-
-        self.player_color = {1: "White", 2: "Black"}
         self.status_bar_text = ""
         self.font = pg.font.Font(None, 32)
         self.engine = chess.Chess()
@@ -172,8 +170,6 @@ class ChessVisualize:
             else:
                 self.update_status_bar(f"Chosen cell: {self.engine.from_cell(cell)} ({figure})")
 
-
-        # --- If player has already selected figure to move
         else:
 
             # --- Invalid moves
@@ -182,8 +178,6 @@ class ChessVisualize:
             if cell == self.selected[0]:
                 self.selected = None
                 self.possible_moves = None
-                self.redraw_board()
-                self.update_status_bar(f"Player on move: {self.player_color[on_offence]}")
                 return False
 
             if not self.engine.check_if_possible_move(on_offence, self.selected[0], cell):
@@ -236,7 +230,8 @@ class ChessVisualize:
     def run(self) -> None:
 
         on_offence, on_defence = 1, 2
-        self.update_status_bar(f"Player on move: {self.player_color[on_offence]}")
+        player_color = {1: "White", 2: "Black"}
+        self.update_status_bar(f"Player on move: {player_color[on_offence]}")
 
         while True:
             for event in pg.event.get():
@@ -254,7 +249,7 @@ class ChessVisualize:
                     if success and finished_move:
                         self.redraw_board()
                         on_offence, on_defence = on_defence, on_offence
-                        self.update_status_bar(f"Player on move: {self.player_color[on_offence]}")
+                        self.update_status_bar(f"Player on move: {player_color[on_offence]}")
 
                     self.engine.danger = self.engine.is_endangered(on_offence)
                     if self.engine.check_mate(on_offence, self.engine.danger):

@@ -11,13 +11,14 @@ class Chess:
         
         self.size = SIZE
         self.board = [["empty" for i in range(self.size)] for j in range(self.size)]
+        self.danger = False # Bool value representing if some king is endangered
 
         # Representation of figures in text format
         self.representation_of = {
             "pawn": "P",
-            "horse" : "H",
-            "tower" : "T",
-            "shooter" : "S",
+            "knight" : "H",
+            "rook" : "T",
+            "bishop" : "S",
             "king" : "K",
             "queen" : "Q"
         }
@@ -25,9 +26,9 @@ class Chess:
         # Assign every figure it's moving method
         self.assign_move = {
             "pawn": self.move_pawn,
-            "horse" : self.move_horse,
-            "tower" : self.move_tower,
-            "shooter" : self.move_shooter,
+            "knight" : self.move_knight,
+            "rook" : self.move_rook,
+            "bishop" : self.move_bishop,
             "king" : self.move_king,
             "queen" : self.move_queen
         }
@@ -42,7 +43,7 @@ class Chess:
 
     def move(self, from_: Cell, to: Cell) -> None:
         """
-        Method to move figure from one cell to another
+        Method to move figure from one cell (from_) to another (to)
         """
         oldx, oldy = from_
         newx, newy = to
@@ -71,12 +72,15 @@ class Chess:
     # ---
 
 
+    # --- Predicates
     def is_inbound(self, x: int, y: int) -> bool:
         # Checks whether player's pick is in-bounds
         return not (x < 0 or x >= self.size or y < 0 or y >= self.size)
 
     def check_mate(self, player: int, danger: bool) -> bool:
-
+        """
+        Method to check if check-mate (end of the game) occured
+        """
         if not danger:
             return False
 
@@ -101,9 +105,36 @@ class Chess:
 
         return True
 
+    def check_if_possible_move(self, player: int, from_: Cell, to: Cell) -> bool:
+        """
+        Checks if player can move from cell (from_) to cell (to) without endangering it's king
+        """
+        self.move(from_, to)
+        if self.is_endangered(player):
+            self.move(to, from_)
+            return False
+
+        self.move(to, from_)
+        return True
+
+    def erased_danger(self, player: int, cell: Cell, possible: List[Cell]) -> bool:
+        """
+        Checks if player is able to erase danger of it's king with currently picked figure
+        """
+        for move in possible:
+            
+            self.move(cell, move)
+            if not self.is_endangered(player):
+                self.move(move, cell)
+                return True
+
+            self.move(move, cell)
+
+        return False
+
     def is_endangered(self, player: int) -> bool:
         """
-        Checks whether king's endangered
+        Checks whether player's king is endangered
         """
         x, y = self.king_pos[player]
         opponent = 1 if player == 2 else 2
@@ -128,6 +159,7 @@ class Chess:
 
         return self.king_pos[player] in possible
 
+    # --- Predicates
 
     # --- Setting boards
     def setup_test(self) -> None:
@@ -135,7 +167,7 @@ class Chess:
         Method to place figure for testing
         """
         self.board[3][3] = ("king", 2)
-        self.board[2][0] = ("tower", 1)
+        self.board[2][0] = ("rook", 1)
         self.board[1][0] = ("king", 1)
 
         self.king_pos[1] = (0, 1)
@@ -146,17 +178,18 @@ class Chess:
         self.board[1] = [("pawn", 2) for i in range(self.size)]
         self.board[6] = [("pawn", 1) for i in range(self.size)]
 
-        self.board[0] = [("tower", 2), ("horse", 2), ("shooter", 2), ("king", 2),
-                         ("queen", 2), ("shooter", 2), ("horse", 2), ("tower", 2)]
+        self.board[0] = [("rook", 2), ("knight", 2), ("bishop", 2), ("king", 2),
+                         ("queen", 2), ("bishop", 2), ("knight", 2), ("rook", 2)]
 
-        self.board[7] = [("tower", 1), ("horse", 1), ("shooter", 1), ("king", 1),
-                         ("queen", 1), ("shooter", 1), ("horse", 1), ("tower", 1)]
+        self.board[7] = [("rook", 1), ("knight", 1), ("bishop", 1), ("king", 1),
+                         ("queen", 1), ("bishop", 1), ("knight", 1), ("rook", 1)]
 
         self.king_pos[1] = (3, 7)
         self.king_pos[2] = (3, 0)
     # ---
 
 
+    # --- Text drawing
     def draw_column_numbering(self) -> None:
 
         numbering = f" X "
@@ -196,8 +229,12 @@ class Chess:
         print(" " * len(numbering) + line)
         self.draw_column_numbering()
 
-    def figure_on(self, x: int, y: int) -> Optional[str]:
+    # --- Text drawing
 
+    def figure_on(self, x: int, y: int) -> Optional[str]:
+        """
+        Returns figure on x, y coordinates
+        """
         if x < 0 or x >= self.size or y < 0 or y >= self.size:
             return None
 
@@ -208,7 +245,10 @@ class Chess:
 
     def filter_options(self, x: int, y: int,
                        options: List[Cell]) -> List[Cell]:
-        
+        """
+        Method to filter-out moves from x, y coordinates
+        which are out of bounds or invalid for other reasons
+        """
         filtered = []
         for dx, dy in options:
             
@@ -286,12 +326,12 @@ class Chess:
 
     def move_queen(self, x: int, y: int) -> List[Cell]:
         
-        # Queen can move same as tower and shooter together
-        options = self.move_tower(x, y)
-        options += self.move_shooter(x, y)
+        # Queen can move same as rook and bishop together
+        options = self.move_rook(x, y)
+        options += self.move_bishop(x, y)
         return list(set(options))
 
-    def move_tower(self, x: int, y: int) -> List[Cell]:
+    def move_rook(self, x: int, y: int) -> List[Cell]:
         
         # Tower can move infinitely but can change only one coord
         options = []
@@ -320,7 +360,7 @@ class Chess:
 
         return self.filter_options(x, y, options)
 
-    def move_horse(self, x: int, y: int) -> List[Cell]:
+    def move_knight(self, x: int, y: int) -> List[Cell]:
         
         # Horse can move in "L-s" every direction
         options = []
@@ -334,7 +374,7 @@ class Chess:
 
         return self.filter_options(x, y, options)
 
-    def move_shooter(self, x: int, y: int) -> List[Cell]:
+    def move_bishop(self, x: int, y: int) -> List[Cell]:
 
         # Shooter can move in diagonal lines
         options = []
@@ -369,7 +409,10 @@ class Chess:
                    on_offence: int,
                    pick_method: Callable[[], Cell],
                    move_method: Callable[[], Cell]) -> None:
-        
+        """
+        Play method for text game
+        (for GUI game method is implemented in gui.py file)
+        """
         
         from_x, from_y = pick_method(on_offence)
 
