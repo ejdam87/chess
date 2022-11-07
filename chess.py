@@ -4,11 +4,10 @@ from type_aliases import *
 
 SIZE = 8    # Chessboard will contain SIZE x SIZE cells
 
-
 class Chess:
 
     def __init__(self) -> None:
-        
+
         self.size = SIZE
         self.board = [["empty" for i in range(self.size)] for j in range(self.size)]
         self.danger = False # Bool value representing if some king is endangered
@@ -54,8 +53,6 @@ class Chess:
 
     # --- Helpers ---
 
-
-
     # --- Coordinate transformation (e.g from A5 to col 0 row 5 or reversed)
     def from_formatted(self, with_letter: str) -> Cell:
 
@@ -67,7 +64,6 @@ class Chess:
     def from_cell(self, cell: Cell) -> str:
         
         col, row = cell
-
         return chr(ord("A") + col) + str(row)
     # ---
 
@@ -272,41 +268,24 @@ class Chess:
     # ---
     # --- Moving figures
 
-    # Player 1 always down !!!
     def move_pawn(self, x: int, y: int, player: int) -> List[Cell]:
 
-        # Pawn can go straight (2 if he is on his own half) and kill to sides
         options = []
         half = self.size // 2
 
-        if player == 1:
-            # Going up
-            if self.figure_on(x + 1, y - 1):
-                options.append((x + 1, y - 1))
+        dy = -1 if player == 1 else 1
+        if self.figure_on(x + 1, y + dy):
+            options.append((x + 1, y + dy))
 
-            if self.figure_on(x - 1, y - 1):
-                options.append((x - 1, y - 1))
+        if self.figure_on(x - 1, y + dy):
+            options.append((x - 1, y + dy))
 
-            if not self.figure_on(x, y - 1):
-                options.append((x, y - 1))
+        if not self.figure_on(x, y + dy):
+            options.append((x, y + dy))
 
-            if y - 2 >= half:
-                if not self.figure_on(x, y - 2):
-                    options.append((x, y - 2))
-        else:
-            # Going down
-            if self.figure_on(x + 1, y + 1):
-                options.append((x + 1, y + 1))
-
-            if self.figure_on(x - 1, y + 1):
-                options.append((x - 1, y + 1))
-
-            if not self.figure_on(x, y + 1):
-                options.append((x, y + 1))
-
-            if y + 2 <= half:
-                if not self.figure_on(x, y + 2):
-                    options.append((x, y + 2))
+        if y + 2 * dy >= half:
+            if not self.figure_on(x, y + 2 * dy):
+                options.append((x, y + 2 * dy))
 
         return self.filter_options(x, y, options)
 

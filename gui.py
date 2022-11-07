@@ -246,7 +246,7 @@ class ChessVisualize:
                     sys.exit()
 
                 elif event.type is MOUSEBUTTONDOWN:
-                    
+
                     coords = pg.mouse.get_pos()
                     success = self.play_round(coords, on_offence)
                     finished_move = self.possible_moves == None
