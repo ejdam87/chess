@@ -1,0 +1,32 @@
+# Ignore everything...
+*
+
+# ...except directories
+!*/
+
+# ...and these files
+!*.java
+!.gitignore
+!game-error.txt
+!game-ok.txt
+!game-out.txt
+!README.md
+!pb162_code_style.xml
+!pom.xml
+!.gitlab-ci.yml
+!*.jpg
+!*.png
+
+# From directories, ignore...
+### Idea:
+.idea/
+.idea_modules/
+/out/
+
+### Maven template
+target/
+
+### Eclipse template
+bin/
+tmp/
+.settings/
