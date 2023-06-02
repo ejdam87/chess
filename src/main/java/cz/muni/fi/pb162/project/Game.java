@@ -1,16 +1,15 @@
 package cz.muni.fi.pb162.project;
 
 import cz.muni.fi.pb162.project.exceptions.EmptySquareException;
-import cz.muni.fi.pb162.project.exceptions.InvalidFormatOfInputException;
 import cz.muni.fi.pb162.project.exceptions.NotAllowedMoveException;
-import cz.muni.fi.pb162.project.utils.BoardNotation;
+import cz.muni.fi.pb162.project.strategies.MoveStrategy;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.Objects;
-import java.util.Scanner;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -22,7 +21,6 @@ import java.util.TreeSet;
  */
 public abstract class Game implements Playable {
 
-    private static final Scanner SCANNER = new Scanner(System.in);
     private final Deque<Memento> mementoHistory = new ArrayDeque<>();
     private final Board board;
     private final Player playerOne;
@@ -92,30 +90,6 @@ public abstract class Game implements Playable {
     }
 
     /**
-     * Method to load command-line input from player
-     *
-     * @return Coordinates of given input
-     */
-    private Coordinates getInputFromPlayer() {
-
-        System.out.println("Where to move?");
-        var position = SCANNER.next().trim();
-        var letterNumber = position.charAt(0);
-
-        if (!Character.isAlphabetic(letterNumber)) {
-            throw new InvalidFormatOfInputException("Invalid letter number provided!");
-        }
-
-        if (!Character.isDigit(position.charAt(1))) {
-            throw new InvalidFormatOfInputException("Invalid number provided");
-        }
-
-        var number = Integer.parseInt(String.valueOf(position.charAt(1)));
-
-        return BoardNotation.getCoordinatesOfNotation(letterNumber, number);
-    }
-
-    /**
      * A method to get all possible moves by current player sorted in specific way
      *
      * @return a set of all possible move by current player sorted in inverse ordering on pieces
@@ -165,7 +139,7 @@ public abstract class Game implements Playable {
     }
 
     @Override
-    public void play() throws EmptySquareException, NotAllowedMoveException {
+    public void play(MoveStrategy strategy1, MoveStrategy strategy2) throws EmptySquareException, NotAllowedMoveException {
 
         Player current;
         while (stateOfGame == StateOfGame.PLAYING) {
@@ -173,8 +147,10 @@ public abstract class Game implements Playable {
             current = getCurrentPlayer();
 
             System.out.println(board);
-            Coordinates from = getInputFromPlayer();
-            Coordinates to = getInputFromPlayer();
+
+            Pair<Coordinates, Coordinates> coordinates = strategy1.makeMove(this);
+            Coordinates from = coordinates.getLeft();
+            Coordinates to = coordinates.getRight();
 
             if (!Board.inRange(from)) {
                 throw new EmptySquareException("Given coordinates are out of bounds!");

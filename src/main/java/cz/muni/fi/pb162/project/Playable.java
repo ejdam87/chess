@@ -3,6 +3,7 @@ package cz.muni.fi.pb162.project;
 import cz.muni.fi.pb162.project.exceptions.EmptySquareException;
 import cz.muni.fi.pb162.project.exceptions.NotAllowedMoveException;
 import cz.muni.fi.pb162.project.exceptions.InvalidFormatOfInputException;
+import cz.muni.fi.pb162.project.strategies.MoveStrategy;
 
 /**
  * Interface providing methods for playable game
@@ -35,5 +36,5 @@ public interface Playable extends Caretaker {
      * @throws NotAllowedMoveException       when trying to move to invalid square
      * @throws InvalidFormatOfInputException when invalid console format is provided
      */
-    void play() throws EmptySquareException, NotAllowedMoveException;
+    void play(MoveStrategy s1, MoveStrategy s2) throws EmptySquareException, NotAllowedMoveException;
 }
