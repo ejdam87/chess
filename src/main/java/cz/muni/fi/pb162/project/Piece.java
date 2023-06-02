@@ -71,18 +71,6 @@ public class Piece implements Prototype<Piece> {
      * @return set of coordinates of all possible moves
      */
     public Set<Coordinates> getAllPossibleMoves(Game game) {
-
-        /*
-        Set<Coordinates> res = new HashSet<>();
-
-        Coordinates myCoordinates = game.getBoard().findCoordinatesOfPieceById(id);
-        for (Move strategy : getMoves()) {
-            res.addAll(strategy.getAllowedMoves(game, myCoordinates));
-        }
-
-        return Collections.unmodifiableSet(res);
-         */
-
         Coordinates myCoordinates = game.getBoard().findCoordinatesOfPieceById(id);
         Stream<Move> strategies = getMoves().stream();
 

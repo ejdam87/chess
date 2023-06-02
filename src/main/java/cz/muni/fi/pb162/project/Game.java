@@ -4,7 +4,6 @@ import cz.muni.fi.pb162.project.exceptions.EmptySquareException;
 import cz.muni.fi.pb162.project.exceptions.InvalidFormatOfInputException;
 import cz.muni.fi.pb162.project.exceptions.NotAllowedMoveException;
 import cz.muni.fi.pb162.project.utils.BoardNotation;
-// import cz.muni.fi.pb162.project.utils.InverseCoordinatesComparator;
 
 import java.util.ArrayDeque;
 import java.util.Collection;
@@ -98,6 +97,8 @@ public abstract class Game implements Playable {
      * @return Coordinates of given input
      */
     private Coordinates getInputFromPlayer() {
+
+        System.out.println("Where to move?");
         var position = SCANNER.next().trim();
         var letterNumber = position.charAt(0);
 
@@ -119,7 +120,6 @@ public abstract class Game implements Playable {
      * @return a set of all possible move by current player sorted in inverse ordering on pieces
      */
     public Set<Coordinates> allPossibleMovesByCurrentPlayer() {
-        //SortedSet<Coordinates> res = new TreeSet<>(new InverseCoordinatesComparator());
         SortedSet<Coordinates> res = new TreeSet<>((o1, o2) -> -o1.compareTo(o2));
 
         for (Piece piece : board.getAllPiecesFromBoard()) {
@@ -171,6 +171,7 @@ public abstract class Game implements Playable {
 
             current = getCurrentPlayer();
 
+            System.out.println(board);
             Coordinates from = getInputFromPlayer();
             Coordinates to = getInputFromPlayer();
 

@@ -127,50 +127,16 @@ public class Board implements Originator<Memento> {
 
     }
 
-    /*
-     * Method to count all the pieces on board
-     *
-     * @return total count of pieces on board
-    private int countPieces() {
-        int res = 0;
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                if (!isEmpty(i, j)) {
-                    res++;
-                }
-            }
-        }
-        return res;
-    }
-    */
     /**
      * Method to get all pieces currently on board
      *
      * @return all pieces currently on board
      */
     public Piece[] getAllPiecesFromBoard() {
-
-        /*
-        Piece[] all = new Piece[countPieces()];
-        int pos = 0;
-
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                Piece piece = getPiece(i, j);
-                if (piece != null) {
-                    all[pos] = piece;
-                    pos++;
-                }
-            }
-        }
-        return all;
-         */
-
         return Arrays.stream(squares)
                 .flatMap(Stream::of)
                 .filter(Objects::nonNull)
                 .toArray(Piece[]::new);
-
     }
 
     /**
@@ -267,7 +233,7 @@ public class Board implements Originator<Memento> {
 
                 Piece current = squares[i][j];
                 if (current != null) {
-                    res[i][j] = new Piece( current );
+                    res[i][j] = new Piece(current);
                 } else {
                     res[i][j] = null;
                 }

@@ -251,12 +251,12 @@ public class Chess extends Game implements GameWritable {
     /**
      * Private method to set up a row full of pawns of given color
      *
-     * @param col   - row to be set
+     * @param row   - row to be set
      * @param color - color of pawns
      */
-    private void setPawns(int col, Color color) {
+    private void setPawns(int row, Color color) {
         Piece pawn = new Piece(color, PieceType.PAWN);
-        for (int row = 0; row < Board.SIZE; row++) {
+        for (int col = 0; col < Board.SIZE; col++) {
             putPieceOnBoard(row, col, pawn.makeClone());
         }
     }
@@ -264,10 +264,10 @@ public class Chess extends Game implements GameWritable {
     /**
      * Private method to set the "first" row of pieces ( rooks, bishops, king etc. )
      *
-     * @param col   - row to be set
+     * @param row   - row to be set
      * @param color - color of pieces
      */
-    private void setPieces(int col, Color color) {
+    private void setPieces(int row, Color color) {
         Piece[] pieces = {
                 new Piece(color, PieceType.ROOK),
                 new Piece(color, PieceType.KNIGHT),
@@ -279,8 +279,8 @@ public class Chess extends Game implements GameWritable {
                 new Piece(color, PieceType.ROOK),
         };
 
-        for (int row = 0; row < Board.SIZE; row++) {
-            putPieceOnBoard(row, col, pieces[row]);
+        for (int col = 0; col < Board.SIZE; col++) {
+            putPieceOnBoard(row, col, pieces[col]);
         }
     }
 
@@ -293,29 +293,6 @@ public class Chess extends Game implements GameWritable {
         setPieces(Board.SIZE - 1, Color.BLACK);
     }
 
-    /*
-Piece[] allPieces = getBoard().getAllPiecesFromBoard();
-boolean haveWhite = false;
-boolean haveBlack = false;
-
-for (Piece currentPiece : allPieces) {
-    if (currentPiece.getPieceType() == PieceType.KING) {
-        if (currentPiece.getColor() == Color.WHITE) {
-            haveWhite = true;
-        } else {
-            haveBlack = true;
-        }
-    }
-}
-
-if (haveWhite && !haveBlack) {
-    setStateOfGame(StateOfGame.WHITE_PLAYER_WIN);
-} else if (!haveWhite && haveBlack) {
-    setStateOfGame(StateOfGame.BLACK_PLAYER_WIN);
-} else {
-    setStateOfGame(StateOfGame.PLAYING);
-}
-*/
     @Override
     public void updateStatus() {
         Piece[] allPieces = getBoard().getAllPiecesFromBoard();
