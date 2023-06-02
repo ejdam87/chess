@@ -105,11 +105,12 @@ public abstract class Game implements Playable {
         if (!Character.isAlphabetic(letterNumber)) {
             throw new InvalidFormatOfInputException("Invalid letter number provided!");
         }
-        var number = Integer.parseInt(String.valueOf(position.charAt(1)));
 
-        if (!Character.isDigit(number)) {
+        if (!Character.isDigit(position.charAt(1))) {
             throw new InvalidFormatOfInputException("Invalid number provided");
         }
+
+        var number = Integer.parseInt(String.valueOf(position.charAt(1)));
 
         return BoardNotation.getCoordinatesOfNotation(letterNumber, number);
     }

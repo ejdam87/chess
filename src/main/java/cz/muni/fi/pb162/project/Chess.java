@@ -286,11 +286,11 @@ public class Chess extends Game implements GameWritable {
 
     @Override
     public void setInitialSet() {
-        setPawns(1, Color.WHITE);
-        setPieces(0, Color.WHITE);
+        setPawns(1, Color.BLACK);
+        setPieces(0, Color.BLACK);
 
-        setPawns(Board.SIZE - 2, Color.BLACK);
-        setPieces(Board.SIZE - 1, Color.BLACK);
+        setPawns(Board.SIZE - 2, Color.WHITE);
+        setPieces(Board.SIZE - 1, Color.WHITE);
     }
 
     @Override
@@ -322,7 +322,7 @@ public class Chess extends Game implements GameWritable {
         }
 
         if (currentPiece.getPieceType() == PieceType.PAWN) {
-            if (coords.number() == 0 || coords.number() == Board.SIZE - 1) {
+            if (coords.letterNumber() == 0 || coords.letterNumber() == Board.SIZE - 1) {
                 Color currentColor = currentPiece.getColor();
                 Piece queen = new Piece(currentColor, PieceType.QUEEN);
                 putPieceOnBoard(coords.letterNumber(), coords.number(), queen);
