@@ -3,6 +3,7 @@ package cz.muni.fi.pb162.project.demo;
 import cz.muni.fi.pb162.project.Chess;
 import cz.muni.fi.pb162.project.Color;
 import cz.muni.fi.pb162.project.Player;
+import cz.muni.fi.pb162.project.gui.ChessDisplay;
 import cz.muni.fi.pb162.project.strategies.ConsolePlayer;
 
 import java.io.IOException;
@@ -28,13 +29,8 @@ public class Main {
 
         game.setInitialSet();
 
-        try {
-            game.play(new ConsolePlayer(), new ConsolePlayer());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        } finally {
-            System.out.println("RIP");
-        }
+        ChessDisplay disp = new ChessDisplay(game);
+        disp.showGame();
 
     }
 
