@@ -2,6 +2,8 @@ package cz.muni.fi.pb162.project;
 
 import cz.muni.fi.pb162.project.exceptions.EmptySquareException;
 import cz.muni.fi.pb162.project.exceptions.NotAllowedMoveException;
+import cz.muni.fi.pb162.project.gui.GameDisplay;
+import cz.muni.fi.pb162.project.strategies.ConsolePlayer;
 import cz.muni.fi.pb162.project.strategies.MoveStrategy;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -26,7 +28,15 @@ public abstract class Game implements Playable {
     private final Board board;
     private final Player playerOne;
     private final Player playerTwo;
+    private MoveStrategy strategyOne = new ConsolePlayer();
+    private MoveStrategy strategyTwo = new ConsolePlayer();
     private StateOfGame stateOfGame = StateOfGame.PLAYING;
+
+    protected Game(Player p1, Player p2, Board board, MoveStrategy move1, MoveStrategy move2) {
+        this(p1, p2, board);
+        strategyOne = move1;
+        strategyTwo = move2;
+    }
 
     protected Game(Player p1, Player p2, Board board) {
         playerOne = p1;
@@ -68,6 +78,14 @@ public abstract class Game implements Playable {
 
     public void setStateOfGame(StateOfGame stateOfGame) {
         this.stateOfGame = stateOfGame;
+    }
+
+    public void setStrategyOne(MoveStrategy strategy) {
+        strategyOne = strategy;
+    }
+
+    public void setStrategyTwo(MoveStrategy strategy) {
+        strategyTwo = strategy;
     }
 
     /**
@@ -139,43 +157,65 @@ public abstract class Game implements Playable {
         return Board.inRange(to) && piece.getAllPossibleMoves(this).contains(to);
     }
 
-    public void playRound() {
+    /**
+     * Checks whether the game is still playable
+     *
+     * @return boolean value representing if the game is still in progress
+     */
+    public boolean playing() {
+        return stateOfGame == StateOfGame.PLAYING;
     }
 
     @Override
-    public void playConsole(MoveStrategy strategy1, MoveStrategy strategy2) throws EmptySquareException, NotAllowedMoveException {
-
+    public void playRound() throws EmptySquareException, NotAllowedMoveException {
         Player currentPlayer;
         MoveStrategy currentStrategy;
-        Map<Player, MoveStrategy> strategies = Map.of(playerOne, strategy1, playerTwo, strategy2);
+        Map<Player, MoveStrategy> strategies = Map.of(playerOne, strategyOne, playerTwo, strategyTwo);
 
-        while (stateOfGame == StateOfGame.PLAYING) {
+        currentPlayer = getCurrentPlayer();
+        currentStrategy = strategies.get(currentPlayer);
 
-            currentPlayer = getCurrentPlayer();
-            currentStrategy = strategies.get(currentPlayer);
+        Pair<Coordinates, Coordinates> coordinates = currentStrategy.makeMove(this);
+        Coordinates from = coordinates.getLeft();
+        Coordinates to = coordinates.getRight();
 
-            Pair<Coordinates, Coordinates> coordinates = currentStrategy.makeMove(this);
-            Coordinates from = coordinates.getLeft();
-            Coordinates to = coordinates.getRight();
+        if (!Board.inRange(from)) {
+            throw new EmptySquareException("Given coordinates are out of bounds!");
+        }
+        if (board.getPiece(from) == null) {
+            throw new EmptySquareException("Trying to move piece from empty square!");
+        }
+        if (!checkMove(board.getPiece(from), to)) {
+            throw new NotAllowedMoveException("Such move is not allowed!");
+        }
 
-            if (!Board.inRange(from)) {
-                throw new EmptySquareException("Given coordinates are out of bounds!");
-            }
-            if (board.getPiece(from) == null) {
-                throw new EmptySquareException("Trying to move piece from empty square!");
-            }
-            if (!checkMove(board.getPiece(from), to)) {
-                throw new NotAllowedMoveException("Such move is not allowed!");
-            }
+        // If current wants to pick up piece of opposite player
+        if (board.getPiece(from).getColor() != currentPlayer.color()) {
+            return;
+        }
 
-            // If current wants to pick up piece of opposite player
-            if (board.getPiece(from).getColor() != currentPlayer.color()) {
-                continue;
-            }
+        move(from, to);
+        board.setRound(board.getRound() + 1);
+        updateStatus();
+    }
 
-            move(from, to);
-            board.setRound(board.getRound() + 1);
-            updateStatus();
+    /**
+     * Command-line interface gameplay
+     *
+     * @throws EmptySquareException    - propagation from inner method
+     * @throws NotAllowedMoveException - propagation from inner method
+     */
+    public void playConsole() throws EmptySquareException, NotAllowedMoveException {
+        while (playing()) {
+            playRound();
+        }
+    }
+
+    public void playGUI(GameDisplay display) throws EmptySquareException, NotAllowedMoveException {
+        display.showGame();
+        while (playing()) {
+            playRound();
+            display.refresh();
         }
     }
 

@@ -1,6 +1,7 @@
 package cz.muni.fi.pb162.project;
 
 import cz.muni.fi.pb162.project.exceptions.MissingPlayerException;
+import cz.muni.fi.pb162.project.strategies.MoveStrategy;
 import cz.muni.fi.pb162.project.utils.BoardNotation;
 
 import java.io.BufferedReader;
@@ -23,6 +24,10 @@ import java.util.stream.Stream;
  * @author Adam Dzadon
  */
 public class Chess extends Game implements GameWritable {
+
+    private Chess(Player player1, Player player2, Board board, MoveStrategy move1, MoveStrategy move2) {
+        super(player1, player2, board, move1, move2);
+    }
 
     private Chess(Player player1, Player player2, Board board) {
         super(player1, player2, board);
@@ -109,7 +114,24 @@ public class Chess extends Game implements GameWritable {
 
         private Player player1;
         private Player player2;
+        private MoveStrategy move1;
+        private MoveStrategy move2;
         private final Board board = new Board();
+
+        /**
+         * Adds next strategy
+         *
+         * @param strategy - strategy to be added
+         * @return itself
+         */
+        public Builder addStrategy(MoveStrategy strategy) {
+            if (move1 == null) {
+                move1 = strategy;
+            } else if (move2 == null) {
+                move2 = strategy;
+            }
+            return this;
+        }
 
         /**
          * Adds player for building chess game
@@ -147,7 +169,12 @@ public class Chess extends Game implements GameWritable {
             if (player1 == null || player2 == null) {
                 throw new MissingPlayerException("Did not provide both players!");
             }
-            return new Chess(player1, player2, board);
+
+            if (move1 == null || move2 == null) {
+                return new Chess(player1, player2, board);
+            }
+
+            return new Chess(player1, player2, board, move1, move2);
         }
 
         /**

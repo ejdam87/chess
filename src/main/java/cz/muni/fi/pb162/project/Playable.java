@@ -3,7 +3,6 @@ package cz.muni.fi.pb162.project;
 import cz.muni.fi.pb162.project.exceptions.EmptySquareException;
 import cz.muni.fi.pb162.project.exceptions.NotAllowedMoveException;
 import cz.muni.fi.pb162.project.exceptions.InvalidFormatOfInputException;
-import cz.muni.fi.pb162.project.strategies.MoveStrategy;
 
 /**
  * Interface providing methods for playable game
@@ -13,7 +12,7 @@ import cz.muni.fi.pb162.project.strategies.MoveStrategy;
 public interface Playable extends Caretaker {
 
     /**
-     * Sets board to initial state ( e.g. in chess it puts all the pieces on it's starting positions )
+     * Sets board to initial state ( e.g. in chess it puts all the pieces on its starting positions )
      */
     void setInitialSet();
 
@@ -28,13 +27,11 @@ public interface Playable extends Caretaker {
     void move(Coordinates coords1, Coordinates coords2);
 
     /**
-     * Aim of this method is to demonstrate game. In each round, it finds out which player is next,
-     * gets input from the player (from standard input), increases the round by one, and makes a move.
-     * Also, the state of the game is updated (see the updateStatus below).
+     * This method performs one round of the game
      *
      * @throws EmptySquareException          when trying to move empty square of out-of-bounds square
      * @throws NotAllowedMoveException       when trying to move to invalid square
      * @throws InvalidFormatOfInputException when invalid console format is provided
      */
-    void playConsole(MoveStrategy s1, MoveStrategy s2) throws EmptySquareException, NotAllowedMoveException;
+    void playRound() throws EmptySquareException, NotAllowedMoveException;
 }

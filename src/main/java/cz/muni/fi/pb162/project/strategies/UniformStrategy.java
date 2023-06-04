@@ -24,11 +24,16 @@ public class UniformStrategy implements MoveStrategy {
         Board board = game.getBoard();
         Piece[] myPieces = board.getAllByColor(me.color());
 
-        int index = new Random().nextInt(myPieces.length);
-        Piece selected = myPieces[index];
-        Coordinates from = board.findCoordinatesOfPieceById(selected.getId());
+        Piece selected;
+        Set<Coordinates> possible;
 
-        Set<Coordinates> possible = selected.getAllPossibleMoves(game);
+        do {
+            int index = new Random().nextInt(myPieces.length);
+            selected = myPieces[index];
+            possible = selected.getAllPossibleMoves(game);
+        } while (possible.size() == 0);
+
+        Coordinates from = board.findCoordinatesOfPieceById(selected.getId());
         Coordinates to = possible.stream()
                 .skip(new Random()
                         .nextInt(possible.size()))
