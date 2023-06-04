@@ -140,6 +140,17 @@ public class Board implements Originator<Memento> {
     }
 
     /**
+     * Returns an array of pieces of given color
+     *
+     * @param color which color to pick
+     * @return array of pieces of given color
+     */
+    public Piece[] getAllByColor(Color color) {
+        return Arrays.stream(getAllPiecesFromBoard())
+                .filter((Piece p) -> p.getColor() == color).toArray(Piece[]::new);
+    }
+
+    /**
      * Method to append initial numbering to given builder
      *
      * @param builder - StringBuilder to be modified

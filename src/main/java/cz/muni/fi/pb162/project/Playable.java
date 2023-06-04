@@ -36,5 +36,5 @@ public interface Playable extends Caretaker {
      * @throws NotAllowedMoveException       when trying to move to invalid square
      * @throws InvalidFormatOfInputException when invalid console format is provided
      */
-    void play(MoveStrategy s1, MoveStrategy s2) throws EmptySquareException, NotAllowedMoveException;
+    void playConsole(MoveStrategy s1, MoveStrategy s2) throws EmptySquareException, NotAllowedMoveException;
 }

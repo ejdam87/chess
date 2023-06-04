@@ -9,6 +9,7 @@ import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
@@ -138,17 +139,22 @@ public abstract class Game implements Playable {
         return Board.inRange(to) && piece.getAllPossibleMoves(this).contains(to);
     }
 
-    @Override
-    public void play(MoveStrategy strategy1, MoveStrategy strategy2) throws EmptySquareException, NotAllowedMoveException {
+    public void playRound() {
+    }
 
-        Player current;
+    @Override
+    public void playConsole(MoveStrategy strategy1, MoveStrategy strategy2) throws EmptySquareException, NotAllowedMoveException {
+
+        Player currentPlayer;
+        MoveStrategy currentStrategy;
+        Map<Player, MoveStrategy> strategies = Map.of(playerOne, strategy1, playerTwo, strategy2);
+
         while (stateOfGame == StateOfGame.PLAYING) {
 
-            current = getCurrentPlayer();
+            currentPlayer = getCurrentPlayer();
+            currentStrategy = strategies.get(currentPlayer);
 
-            System.out.println(board);
-
-            Pair<Coordinates, Coordinates> coordinates = strategy1.makeMove(this);
+            Pair<Coordinates, Coordinates> coordinates = currentStrategy.makeMove(this);
             Coordinates from = coordinates.getLeft();
             Coordinates to = coordinates.getRight();
 
@@ -163,7 +169,7 @@ public abstract class Game implements Playable {
             }
 
             // If current wants to pick up piece of opposite player
-            if (board.getPiece(from).getColor() != current.color()) {
+            if (board.getPiece(from).getColor() != currentPlayer.color()) {
                 continue;
             }
 

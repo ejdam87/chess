@@ -8,7 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * Class representing GUI display
+ * Class representing GUI display of chess game
  *
  * @author Adam Dzadon
  */
@@ -42,7 +42,7 @@ public class ChessDisplay extends JFrame {
     public ChessDisplay(Chess game) {
         this.game = game;
         initBoardGrid();
-        layout = new GridLayout(8, 8);
+        layout = new GridLayout(Board.SIZE, Board.SIZE);
         panel = new JPanel();
         panel.setLayout(layout);
         addCells();
