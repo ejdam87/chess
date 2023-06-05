@@ -9,20 +9,38 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * Class representing GUI display of chess game
+ * Class representing GUI display of a board game
  *
  * @author Adam Dzadon
  */
 public class GameDisplay extends JFrame {
 
-    Coordinates fromSelected;
-    Coordinates toSelected;
+    private Coordinates fromSelected;
+    private Coordinates toSelected;
 
-    Game game;
-    JButton[][] boardShow = new JButton[Board.SIZE][Board.SIZE];
-    GridLayout layout;
-    JPanel panel;
+    private final static Color DARK = new Color(61, 115, 66);
+    private final static Color LIGHT = new Color(240, 243, 138);
 
+
+    private final Game game;
+    private final JButton[][] boardShow = new JButton[Board.SIZE][Board.SIZE];
+    private final JPanel panel;
+    private final JLabel status;
+
+    public GameDisplay(Game game) {
+        this.game = game;
+        initBoardGrid();
+        GridLayout layout = new GridLayout(Board.SIZE, Board.SIZE);
+        panel = new JPanel();
+        panel.setLayout(layout);
+        status = new JLabel("Ola", SwingConstants.CENTER);
+        addCells();
+        refresh();
+    }
+
+    /**
+     * deletes selection of cells on board
+     */
     public void eraseSelected() {
         fromSelected = null;
         toSelected = null;
@@ -36,15 +54,21 @@ public class GameDisplay extends JFrame {
         return toSelected;
     }
 
+    /**
+     * Initializes the grid of buttons representing board cells
+     */
     private void initBoardGrid() {
         for (int i = 0; i < Board.SIZE; i++) {
             for (int j = 0; j < Board.SIZE; j++) {
-                Piece actual = game.getBoard().getPiece(i, j);
-                String toShow = "";
-                if (actual != null) {
-                    toShow = actual.toString();
+                boardShow[i][j] = new JButton();
+
+                if ((i + j) % 2 == 0) {
+                    boardShow[i][j].setBackground(GameDisplay.DARK);
+                } else {
+                    boardShow[i][j].setBackground(GameDisplay.LIGHT);
                 }
-                boardShow[i][j] = new JButton(toShow);
+
+                boardShow[i][j].setFont(new Font("Sans-Serif", Font.PLAIN, 60));
 
                 int row = i;
                 int col = j;
@@ -53,6 +77,9 @@ public class GameDisplay extends JFrame {
         }
     }
 
+    /**
+     * Fills the panel to show the grid
+     */
     private void addCells() {
         for (int i = 0; i < Board.SIZE; i++) {
             for (int j = 0; j < Board.SIZE; j++) {
@@ -61,26 +88,39 @@ public class GameDisplay extends JFrame {
         }
     }
 
-    public GameDisplay(Game game) {
-        this.game = game;
-        initBoardGrid();
-        layout = new GridLayout(Board.SIZE, Board.SIZE);
-        panel = new JPanel();
-        panel.setLayout(layout);
-        addCells();
-    }
-
+    /**
+     * Action handler of button click
+     *
+     * @param i row of button
+     * @param j col of button
+     */
     public void buttonClicked(int i, int j) {
-
-        System.out.println(toSelected);
-
         if (fromSelected == null) {
             fromSelected = new Coordinates(i, j);
         } else if (toSelected == null) {
             toSelected = new Coordinates(i, j);
         }
+
+        refreshStatus();
+
     }
 
+    private void refreshStatus() {
+        status.setText(
+                "From: "
+                        + fromSelected
+                        + " To: " +
+                        toSelected
+                        +
+                        "State: "
+                        + game.getStateOfGame()
+                        + " On move: "
+                        + game.getCurrentPlayer().color());
+    }
+
+    /**
+     * Changes labels of buttons according to state of game board
+     */
     public void refresh() {
         for (int i = 0; i < Board.SIZE; i++) {
             for (int j = 0; j < Board.SIZE; j++) {
@@ -89,16 +129,24 @@ public class GameDisplay extends JFrame {
                 if (actual != null) {
                     toShow = actual.toString();
                 }
-
                 boardShow[i][j].setText(toShow);
             }
         }
+
+        refreshStatus();
+
     }
 
+    /**
+     * Sets up the display
+     */
     public void showGame() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(600, 600);
-        add(panel);
+        setLayout(new BorderLayout());
+        setSize(600, 800);
+        add(panel, BorderLayout.NORTH);
+        add(status, BorderLayout.SOUTH);
+        pack();
         setVisible(true);
     }
 

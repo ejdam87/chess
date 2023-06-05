@@ -32,10 +32,14 @@ public abstract class Game implements Playable {
     private MoveStrategy strategyTwo = new ConsolePlayer();
     private StateOfGame stateOfGame = StateOfGame.PLAYING;
 
-    protected Game(Player p1, Player p2, Board board, MoveStrategy move1, MoveStrategy move2) {
+    protected Game(Player p1,
+                   Player p2,
+                   Board board,
+                   MoveStrategy strategy1,
+                   MoveStrategy strategy2) {
         this(p1, p2, board);
-        strategyOne = move1;
-        strategyTwo = move2;
+        strategyOne = strategy1;
+        strategyTwo = strategy2;
     }
 
     protected Game(Player p1, Player p2, Board board) {
@@ -214,7 +218,11 @@ public abstract class Game implements Playable {
     public void playGUI(GameDisplay display) throws EmptySquareException, NotAllowedMoveException {
         display.showGame();
         while (playing()) {
-            playRound();
+            try {
+                playRound();
+            } catch (NotAllowedMoveException|EmptySquareException ex) {
+                System.out.println("Lol");
+            }
             display.refresh();
         }
     }

@@ -6,13 +6,13 @@ import cz.muni.fi.pb162.project.gui.GameDisplay;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
- * GUI player move strategy
+ * GUI human-based move strategy
  *
  * @author Adam Dzadon
  */
 public class GUIPlayer implements MoveStrategy {
 
-    GameDisplay display;
+    private final GameDisplay display;
 
     public GUIPlayer(GameDisplay display) {
         this.display = display;
@@ -24,7 +24,6 @@ public class GUIPlayer implements MoveStrategy {
             try{
                 Thread.sleep(200);
             } catch (InterruptedException e) {
-
             }
         }
 

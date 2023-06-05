@@ -7,6 +7,7 @@ import cz.muni.fi.pb162.project.moves.Move;
 import cz.muni.fi.pb162.project.moves.Pawn;
 import cz.muni.fi.pb162.project.moves.Straight;
 
+import javax.swing.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -87,6 +88,10 @@ public class Piece implements Prototype<Piece> {
         return new Piece(color, pieceType);
     }
 
+    public ImageIcon toIcon() {
+        return pieceType.getIcon(color);
+    }
+    
     @Override
     public String toString() {
         return pieceType.getSymbol(color);

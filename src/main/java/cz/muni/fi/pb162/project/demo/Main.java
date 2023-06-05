@@ -17,8 +17,6 @@ import java.io.IOException;
  * @author Alzbeta Strompova
  */
 public class Main {
-
-
     /**
      * Runs the code.
      *
