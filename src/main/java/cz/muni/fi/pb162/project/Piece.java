@@ -91,7 +91,7 @@ public class Piece implements Prototype<Piece> {
     public ImageIcon toIcon() {
         return pieceType.getIcon(color);
     }
-    
+
     @Override
     public String toString() {
         return pieceType.getSymbol(color);

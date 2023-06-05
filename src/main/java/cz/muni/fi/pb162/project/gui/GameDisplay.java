@@ -63,9 +63,9 @@ public class GameDisplay extends JFrame {
                 boardShow[i][j] = new JButton();
 
                 if ((i + j) % 2 == 0) {
-                    boardShow[i][j].setBackground(GameDisplay.DARK);
-                } else {
                     boardShow[i][j].setBackground(GameDisplay.LIGHT);
+                } else {
+                    boardShow[i][j].setBackground(GameDisplay.DARK);
                 }
 
                 boardShow[i][j].setFont(new Font("Sans-Serif", Font.PLAIN, 60));

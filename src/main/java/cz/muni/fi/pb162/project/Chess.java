@@ -368,6 +368,15 @@ public class Chess extends Game implements GameWritable {
     }
 
     /**
+     * Checks whether mate occurred
+     *
+     * @return true if mate occurred
+     */
+    private boolean isMate() {
+        return getStateOfGame() == StateOfGame.CHECK && isCheck();
+    }
+
+    /**
      * Checks if any king is endangered
      *
      * @return true if either king is endangered
@@ -387,7 +396,7 @@ public class Chess extends Game implements GameWritable {
 
     @Override
     public void updateStatus() {
-        if (getStateOfGame() == StateOfGame.CHECK && isCheck()) {
+        if (isMate()) {
             setStateOfGame(StateOfGame.MATE);
         } else if (isCheck()) {
             setStateOfGame(StateOfGame.CHECK);
