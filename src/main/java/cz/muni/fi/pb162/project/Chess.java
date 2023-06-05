@@ -15,8 +15,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.stream.Stream;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Class representing a game of chess
@@ -320,19 +320,81 @@ public class Chess extends Game implements GameWritable {
         setPieces(Board.SIZE - 1, Color.WHITE);
     }
 
+    /**
+     * Returns all possible moves by given player
+     *
+     * @param player player to evaluate
+     * @return all possible moves
+     */
+    private Set<Coordinates> movesByPlayer(Player player) {
+        Piece[] pieces = getBoard().getAllByColor(player.color());
+        Set<Coordinates> res = new HashSet<>();
+        for (Piece piece : pieces) {
+            res.addAll(piece.getAllPossibleMoves(this));
+        }
+        return res;
+    }
+
+    /**
+     * Helper method to get the king of given player
+     *
+     * @param player - player to get the king of
+     * @return king piece of given player
+     */
+    private Piece getKingOf(Player player) {
+        Piece[] currentPieces = getBoard().getAllByColor(player.color());
+        for (Piece piece : currentPieces) {
+            if (piece.getPieceType() == PieceType.KING) {
+                return piece;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Checks whether given player's king is endangered
+     *
+     * @param player player to check
+     * @return true if player's king is endangered
+     */
+    private boolean isCheckOf(Player player) {
+        Player opposing = getPlayerOne().equals(player) ? getPlayerTwo() : getPlayerOne();
+        Piece currentKing = getKingOf(player);
+
+        assert currentKing != null;
+
+        Coordinates kingCoordinates = getBoard().findCoordinatesOfPieceById(currentKing.getId());
+        return movesByPlayer(opposing).contains(kingCoordinates);
+    }
+
+    /**
+     * Checks if any king is endangered
+     *
+     * @return true if either king is endangered
+     */
+    private boolean isCheck() {
+        return isCheckOf(getCurrentPlayer()) || isCheckOf(getOpposingPlayer());
+    }
+
+    /**
+     * Checks whether "pat" occurred
+     *
+     * @return true if pat occurred
+     */
+    private boolean isPat() {
+        return movesByPlayer(getCurrentPlayer()).isEmpty() && !isCheck();
+    }
+
     @Override
     public void updateStatus() {
-        Piece[] allPieces = getBoard().getAllPiecesFromBoard();
-        Stream<Piece> white = Arrays.stream(allPieces).filter(p -> p.getColor() == Color.WHITE);
-        Stream<Piece> black = Arrays.stream(allPieces).filter(p -> p.getColor() == Color.BLACK);
-
-        boolean haveWhite = white.anyMatch(p -> p.getPieceType() == PieceType.KING);
-        boolean haveBlack = black.anyMatch(p -> p.getPieceType() == PieceType.KING);
-
-        if (haveWhite && !haveBlack) {
-            setStateOfGame(StateOfGame.WHITE_PLAYER_WIN);
-        } else if (!haveWhite && haveBlack) {
-            setStateOfGame(StateOfGame.BLACK_PLAYER_WIN);
+        if (getStateOfGame() == StateOfGame.CHECK && isCheck()) {
+            setStateOfGame(StateOfGame.MATE);
+        } else if (isCheck()) {
+            setStateOfGame(StateOfGame.CHECK);
+        } else if (isPat()) {
+            setStateOfGame(StateOfGame.PAT);
+        } else {
+            setStateOfGame(StateOfGame.PLAYING);
         }
     }
 

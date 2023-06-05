@@ -102,6 +102,15 @@ public abstract class Game implements Playable {
     }
 
     /**
+     * Returns the player which is not on the turn
+     *
+     * @return player not to move
+     */
+    public Player getOpposingPlayer() {
+        return getCurrentPlayer().equals(playerTwo) ? playerOne : playerTwo;
+    }
+
+    /**
      * Method to put piece on game board
      *
      * @param letterNumber - row coordinate
@@ -167,7 +176,7 @@ public abstract class Game implements Playable {
      * @return boolean value representing if the game is still in progress
      */
     public boolean playing() {
-        return stateOfGame == StateOfGame.PLAYING;
+        return stateOfGame == StateOfGame.PLAYING || stateOfGame == StateOfGame.CHECK;
     }
 
     @Override
@@ -220,7 +229,7 @@ public abstract class Game implements Playable {
         while (playing()) {
             try {
                 playRound();
-            } catch (NotAllowedMoveException|EmptySquareException ex) {
+            } catch (NotAllowedMoveException | EmptySquareException ex) {
                 System.out.println("Lol");
             }
             display.refresh();

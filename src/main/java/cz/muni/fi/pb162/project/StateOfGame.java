@@ -4,9 +4,9 @@ package cz.muni.fi.pb162.project;
  * @author Adam Dzadon
  */
 public enum StateOfGame {
-    WHITE_PLAYER_WIN,
-    BLACK_PLAYER_WIN,
+    MATE,
     PAT,
+    CHECK,
     PLAYING;
 
     @Override

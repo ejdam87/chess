@@ -25,7 +25,7 @@ public class IconLoader {
         ImageIcon res = null;
         try {
             Image im = ImageIO.read(new File(path));
-            im = im.getScaledInstance(40, 40, java.awt.Image.SCALE_SMOOTH);
+            im = im.getScaledInstance(50, 70, java.awt.Image.SCALE_SMOOTH);
             res = new ImageIcon(im);
 
         } catch (IOException ex) {

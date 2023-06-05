@@ -34,7 +34,6 @@ public class Main {
         GameDisplay disp = new GameDisplay(game);
         game.setStrategyTwo(new GUIPlayer(disp));
         game.playGUI(disp);
-
     }
 
 }

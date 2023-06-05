@@ -31,7 +31,7 @@ public class Pawn implements Move {
 
     private void movesByWhite(Board board, Coordinates position, HashSet<Coordinates> result) {
         result.add(new Coordinates(position.letterNumber() - 1, position.number()));
-        if (position.letterNumber() == Board.SIZE - 2) {
+        if (position.letterNumber() == Board.SIZE - 2 && board.isEmpty(position.letterNumber() - 2, position.number())) {
             result.add(new Coordinates(position.letterNumber() - 2, position.number()));
         }
         if (!board.isEmpty(position.letterNumber() - 1, position.number() + 1)
@@ -46,7 +46,7 @@ public class Pawn implements Move {
 
     private void movesByBlack(Board board, Coordinates position, HashSet<Coordinates> result) {
         result.add(new Coordinates(position.letterNumber() + 1, position.number()));
-        if (position.letterNumber() == 1) {
+        if (position.letterNumber() == 1 && board.isEmpty(position.letterNumber() + 2, position.number())) {
             result.add(new Coordinates(position.letterNumber() + 2, position.number()));
         }
         if (!board.isEmpty(position.letterNumber() + 1, position.number() + 1)

@@ -106,15 +106,18 @@ public class GameDisplay extends JFrame {
     }
 
     private void refreshStatus() {
+        String space = "   ";
         status.setText(
-                "From: "
+                "From:"
                         + fromSelected
-                        + " To: " +
-                        toSelected
-                        +
-                        "State: "
+                        + space
+                        + "To:"
+                        + toSelected
+                        + space
+                        + "State:"
                         + game.getStateOfGame()
-                        + " On move: "
+                        + space
+                        + "On move:"
                         + game.getCurrentPlayer().color());
     }
 
@@ -124,17 +127,16 @@ public class GameDisplay extends JFrame {
     public void refresh() {
         for (int i = 0; i < Board.SIZE; i++) {
             for (int j = 0; j < Board.SIZE; j++) {
-                String toShow = "";
+                ImageIcon toShow = null;
                 Piece actual = game.getBoard().getPiece(i, j);
                 if (actual != null) {
-                    toShow = actual.toString();
+                    toShow = actual.toIcon();
                 }
-                boardShow[i][j].setText(toShow);
+                boardShow[i][j].setIcon(toShow);
             }
         }
 
         refreshStatus();
-
     }
 
     /**
@@ -143,7 +145,7 @@ public class GameDisplay extends JFrame {
     public void showGame() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
-        setSize(600, 800);
+        setSize(800, 800);
         add(panel, BorderLayout.NORTH);
         add(status, BorderLayout.SOUTH);
         pack();
