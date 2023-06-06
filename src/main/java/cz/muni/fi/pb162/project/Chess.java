@@ -321,21 +321,6 @@ public class Chess extends Game implements GameWritable {
     }
 
     /**
-     * Returns all possible moves by given player
-     *
-     * @param player player to evaluate
-     * @return all possible moves
-     */
-    private Set<Coordinates> movesByPlayer(Player player) {
-        Piece[] pieces = getBoard().getAllByColor(player.color());
-        Set<Coordinates> res = new HashSet<>();
-        for (Piece piece : pieces) {
-            res.addAll(piece.getAllPossibleMoves(this));
-        }
-        return res;
-    }
-
-    /**
      * Helper method to get the king of given player
      *
      * @param player - player to get the king of
@@ -351,20 +336,15 @@ public class Chess extends Game implements GameWritable {
         return null;
     }
 
-    /**
-     * Checks whether given player's king is endangered
-     *
-     * @param player player to check
-     * @return true if player's king is endangered
-     */
-    private boolean isCheckOf(Player player) {
+    @Override
+    public boolean isCheckOf(Player player) {
         Player opposing = getPlayerOne().equals(player) ? getPlayerTwo() : getPlayerOne();
         Piece currentKing = getKingOf(player);
 
         assert currentKing != null;
 
         Coordinates kingCoordinates = getBoard().findCoordinatesOfPieceById(currentKing.getId());
-        return movesByPlayer(opposing).contains(kingCoordinates);
+        return movesByPlayerUnrestricted(opposing).contains(kingCoordinates);
     }
 
     /**
@@ -373,7 +353,7 @@ public class Chess extends Game implements GameWritable {
      * @return true if mate occurred
      */
     private boolean isMate() {
-        return getStateOfGame() == StateOfGame.CHECK && isCheck();
+        return movesByPlayer(getCurrentPlayer()).isEmpty() && isCheck();
     }
 
     /**

@@ -30,7 +30,7 @@ public class UniformStrategy implements MoveStrategy {
         do {
             int index = new Random().nextInt(myPieces.length);
             selected = myPieces[index];
-            possible = selected.getAllPossibleMoves(game);
+            possible = game.getMovesByPiece(selected);
         } while (possible.size() == 0);
 
         Coordinates from = board.findCoordinatesOfPieceById(selected.getId());

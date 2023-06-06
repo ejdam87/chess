@@ -11,11 +11,10 @@ import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 /**
  * Class to represent a board game between two players
@@ -121,20 +120,46 @@ public abstract class Game implements Playable {
         board.putPieceOnBoard(letterNumber, number, piece);
     }
 
-    /**
-     * A method to get all possible moves by current player sorted in specific way
-     *
-     * @return a set of all possible move by current player sorted in inverse ordering on pieces
-     */
-    public Set<Coordinates> allPossibleMovesByCurrentPlayer() {
-        SortedSet<Coordinates> res = new TreeSet<>((o1, o2) -> -o1.compareTo(o2));
-
-        for (Piece piece : board.getAllPiecesFromBoard()) {
-            if (piece.getColor() == getCurrentPlayer().color()) {
-                res.addAll(piece.getAllPossibleMoves(this));
-            }
+    public Set<Coordinates> movesByPlayerUnrestricted(Player player) {
+        Piece[] pieces = getBoard().getAllByColor(player.color());
+        Set<Coordinates> res = new HashSet<>();
+        for (Piece piece : pieces) {
+            res.addAll(piece.getAllPossibleMoves(this));
         }
         return res;
+    }
+
+    /**
+     * Returns all possible moves by given player
+     *
+     * @param player player to evaluate
+     * @return all possible moves
+     */
+    public Set<Coordinates> movesByPlayer(Player player) {
+        Piece[] pieces = getBoard().getAllByColor(player.color());
+        Set<Coordinates> res = new HashSet<>();
+        for (Piece piece : pieces) {
+            res.addAll(getMovesByPiece(piece));
+        }
+        return res;
+    }
+
+    public Set<Coordinates> getMovesByPiece(Piece piece) {
+
+        Coordinates myCoordinates = getBoard().findCoordinatesOfPieceById(piece.getId());
+        Set<Coordinates> original = piece.getAllPossibleMoves(this);
+        Set<Coordinates> filtered = new HashSet<>();
+
+        for (Coordinates coords : original) {
+            Piece previous = getBoard().getPiece(coords);
+            move(myCoordinates, coords);
+            if (!isCheckOf(getCurrentPlayer())) {
+                filtered.add(coords);
+            }
+            move(coords, myCoordinates);
+            putPieceOnBoard(coords.letterNumber(), coords.number(), previous);
+        }
+        return filtered;
     }
 
     @Override
@@ -155,20 +180,17 @@ public abstract class Game implements Playable {
     }
 
     /**
+     * Checks whether given player's king is endangered
+     *
+     * @param player player to check
+     * @return true if player's king is endangered
+     */
+    public abstract boolean isCheckOf(Player player);
+
+    /**
      * Method to decide whether there is a winner
      */
     public abstract void updateStatus();
-
-    /**
-     * A method to check whether desired move is possible
-     *
-     * @param piece piece to make a move with
-     * @param to    coordinates to move to
-     * @return true if possible false otherwise
-     */
-    private boolean checkMove(Piece piece, Coordinates to) {
-        return Board.inRange(to) && piece.getAllPossibleMoves(this).contains(to);
-    }
 
     /**
      * Checks whether the game is still playable
@@ -198,7 +220,8 @@ public abstract class Game implements Playable {
         if (board.getPiece(from) == null) {
             throw new EmptySquareException("Trying to move piece from empty square!");
         }
-        if (!checkMove(board.getPiece(from), to)) {
+
+        if (!getMovesByPiece(board.getPiece(from)).contains(to)) {
             throw new NotAllowedMoveException("Such move is not allowed!");
         }
 

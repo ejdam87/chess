@@ -75,12 +75,13 @@ public class Piece implements Prototype<Piece> {
         Coordinates myCoordinates = game.getBoard().findCoordinatesOfPieceById(id);
         Stream<Move> strategies = getMoves().stream();
 
-        return strategies.collect(
+        Set<Coordinates> original = strategies.collect(
                 HashSet::new,
                 (res, strategy) -> res.addAll(strategy.getAllowedMoves(game, myCoordinates)),
                 Set::addAll
         );
 
+        return original;
     }
 
     @Override
