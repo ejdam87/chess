@@ -120,8 +120,15 @@ public abstract class Game implements Playable {
         board.putPieceOnBoard(letterNumber, number, piece);
     }
 
+    /**
+     * Returns all coordinates to which can any piece of given player move
+     * contains also moves which EXPOSES player's king!!!
+     *
+     * @param player player to evaluate
+     * @return set of coordinates which are possible to move piece to
+     */
     public Set<Coordinates> movesByPlayerUnrestricted(Player player) {
-        Piece[] pieces = getBoard().getAllByColor(player.color());
+        Piece[] pieces = board.getAllByColor(player.color());
         Set<Coordinates> res = new HashSet<>();
         for (Piece piece : pieces) {
             res.addAll(piece.getAllPossibleMoves(this));
@@ -136,7 +143,7 @@ public abstract class Game implements Playable {
      * @return all possible moves
      */
     public Set<Coordinates> movesByPlayer(Player player) {
-        Piece[] pieces = getBoard().getAllByColor(player.color());
+        Piece[] pieces = board.getAllByColor(player.color());
         Set<Coordinates> res = new HashSet<>();
         for (Piece piece : pieces) {
             res.addAll(getMovesByPiece(piece));
@@ -144,14 +151,20 @@ public abstract class Game implements Playable {
         return res;
     }
 
+    /**
+     * Returns all positions to which given piece can move without exposing its king
+     *
+     * @param piece piece to evaluate
+     * @return set of coordinates to which given piece can be moved
+     */
     public Set<Coordinates> getMovesByPiece(Piece piece) {
 
-        Coordinates myCoordinates = getBoard().findCoordinatesOfPieceById(piece.getId());
+        Coordinates myCoordinates = board.findCoordinatesOfPieceById(piece.getId());
         Set<Coordinates> original = piece.getAllPossibleMoves(this);
         Set<Coordinates> filtered = new HashSet<>();
 
         for (Coordinates coords : original) {
-            Piece previous = getBoard().getPiece(coords);
+            Piece previous = board.getPiece(coords);
             move(myCoordinates, coords);
             if (!isCheckOf(getCurrentPlayer())) {
                 filtered.add(coords);
@@ -253,7 +266,7 @@ public abstract class Game implements Playable {
             try {
                 playRound();
             } catch (NotAllowedMoveException | EmptySquareException ex) {
-                System.out.println("Lol");
+                System.out.println("Not allowed move occurred!");
             }
             display.refresh();
         }
