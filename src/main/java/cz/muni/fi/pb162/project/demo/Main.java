@@ -32,7 +32,7 @@ public class Main {
 
         game.setInitialSet();
         GameDisplay disp = new GameDisplay(game);
-        game.setStrategyOne(new GUIPlayer(disp));
+        game.setStrategyTwo(new GUIPlayer(disp));
         game.playGUI(disp);
     }
 

@@ -193,6 +193,22 @@ public abstract class Game implements Playable {
     }
 
     /**
+     * Method to perform "castle" move
+     *
+     * @param from Coordinates of king
+     * @param to   Coordinates where to move king
+     */
+    public void performCastle(Coordinates from, Coordinates to) {
+        move(from, to);
+
+        if (to.number() == 1) {
+            move(new Coordinates(from.letterNumber(), 0), new Coordinates(from.letterNumber(), 2));
+        } else {
+            move(new Coordinates(from.letterNumber(), Board.SIZE - 1), new Coordinates(from.letterNumber(), Board.SIZE - 3));
+        }
+    }
+
+    /**
      * Checks whether given player's king is endangered
      *
      * @param player player to check
@@ -227,23 +243,29 @@ public abstract class Game implements Playable {
         Coordinates from = coordinates.getLeft();
         Coordinates to = coordinates.getRight();
 
+        Piece toMove = board.getPiece(from);
+
         if (!Board.inRange(from)) {
             throw new EmptySquareException("Given coordinates are out of bounds!");
         }
-        if (board.getPiece(from) == null) {
+        if (toMove == null) {
             throw new EmptySquareException("Trying to move piece from empty square!");
         }
-
-        if (!getMovesByPiece(board.getPiece(from)).contains(to)) {
+        if (!getMovesByPiece(toMove).contains(to)) {
             throw new NotAllowedMoveException("Such move is not allowed!");
         }
 
         // If current wants to pick up piece of opposite player
-        if (board.getPiece(from).getColor() != currentPlayer.color()) {
+        if (toMove.getColor() != currentPlayer.color()) {
             return;
         }
 
-        move(from, to);
+        if (toMove.getPieceType() == PieceType.KING && (Math.abs(from.number() - to.number()) > 1)) {
+            performCastle(from, to);
+        } else {
+            move(from, to);
+        }
+
         board.setRound(board.getRound() + 1);
         updateStatus();
     }

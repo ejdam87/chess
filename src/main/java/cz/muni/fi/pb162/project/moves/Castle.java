@@ -18,8 +18,16 @@ import java.util.Set;
  */
 public class Castle implements Move {
 
+    /**
+     * Helper method to check if there are empty places in given direction
+     *
+     * @param row  row of king
+     * @param side side to move (1 for left, -1 for right)
+     * @param game game instance
+     * @return true if there are no pieces in given side
+     */
     private boolean checkSides(int row, int side, Game game) {
-        int i = 4;
+        int i = 4 + side;
         while (i > 0 && i < Board.SIZE - 1) {
             if (!game.getBoard().isEmpty(row, i)) {
                 return false;
@@ -29,11 +37,18 @@ public class Castle implements Move {
         return true;
     }
 
+    /**
+     * Returns set of coordinates to which a king can move with "castle" move
+     *
+     * @param row   row of king (first or last based on color)
+     * @param game  game instance
+     * @param color color of king
+     * @return set of coordinates to which the king of given color can move with "castle"
+     */
     private Set<Coordinates> evalCastle(int row, Game game, Color color) {
 
         Set<Coordinates> res = new HashSet<>();
 
-        System.out.println(checkSides(row, 1, game));
         if (checkSides(row, 1, game)) {
             Piece possibleRook = game.getBoard().getPiece(row, Board.SIZE - 1);
             if (possibleRook.getPieceType() == PieceType.ROOK && possibleRook.getColor() == color) {
