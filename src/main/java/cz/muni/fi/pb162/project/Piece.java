@@ -1,5 +1,6 @@
 package cz.muni.fi.pb162.project;
 
+import cz.muni.fi.pb162.project.moves.Castle;
 import cz.muni.fi.pb162.project.moves.Diagonal;
 import cz.muni.fi.pb162.project.moves.Jump;
 import cz.muni.fi.pb162.project.moves.Knight;
@@ -75,13 +76,11 @@ public class Piece implements Prototype<Piece> {
         Coordinates myCoordinates = game.getBoard().findCoordinatesOfPieceById(id);
         Stream<Move> strategies = getMoves().stream();
 
-        Set<Coordinates> original = strategies.collect(
+        return strategies.collect(
                 HashSet::new,
                 (res, strategy) -> res.addAll(strategy.getAllowedMoves(game, myCoordinates)),
                 Set::addAll
         );
-
-        return original;
     }
 
     @Override
@@ -120,7 +119,7 @@ public class Piece implements Prototype<Piece> {
     private List<Move> getMovesByType(PieceType pieceType) {
         List<Move> moves;
         switch (pieceType) {
-            case KING -> moves = List.of(new Straight(1), new Diagonal(1));
+            case KING -> moves = List.of(new Straight(1), new Diagonal(1), new Castle());
             case QUEEN -> moves = List.of(new Straight(), new Diagonal());
             case BISHOP -> moves = List.of(new Diagonal());
             case ROOK -> moves = List.of(new Straight());

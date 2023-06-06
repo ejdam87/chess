@@ -19,7 +19,7 @@ public class GameDisplay extends JFrame {
     private Coordinates toSelected;
 
     private final static Color DARK = new Color(61, 115, 66);
-    private final static Color LIGHT = new Color(240, 243, 138);
+    private final static Color LIGHT = new Color(240, 243, 150);
 
 
     private final Game game;
