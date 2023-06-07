@@ -340,7 +340,6 @@ public class Chess extends Game implements GameWritable {
         Piece currentKing = getKingOf(player);
 
         assert currentKing != null;
-
         Coordinates kingCoordinates = getBoard().findCoordinatesOfPieceById(currentKing.getId());
         return movesByPlayerUnrestricted(opposing).contains(kingCoordinates);
     }

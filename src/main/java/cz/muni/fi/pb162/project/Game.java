@@ -207,7 +207,7 @@ public abstract class Game implements Playable {
             if (!isCheckOf(getCurrentPlayer())) {
                 filtered.add(coords);
             }
-            move(coords, myCoordinates);
+            putPieceOnBoard(myCoordinates.letterNumber(), myCoordinates.number(), piece);
             putPieceOnBoard(coords.letterNumber(), coords.number(), previous);
         }
         return filtered;

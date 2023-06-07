@@ -15,7 +15,7 @@ import java.util.Set;
  */
 public class DFStrategy implements MoveStrategy {
 
-    public static final int DEPTH = 1;
+    public static final int DEPTH = 4;
     public static final int MIN = 0;
     public static final int MAX = 1;
 
@@ -26,7 +26,8 @@ public class DFStrategy implements MoveStrategy {
                                                                      int depth) {
 
         if (depth == 0) {
-            int score = game.getTotalValueOf(me.color()) - game.getTotalValueOf(game.getOtherPlayer(me).color());
+            int coef = DEPTH % 2 == 0 ? -1 : 1;
+            int score = coef * (game.getTotalValueOf(game.getOtherPlayer(me).color()) - game.getTotalValueOf(me.color()));
             return Pair.of(move, score);
         }
 
@@ -50,7 +51,7 @@ public class DFStrategy implements MoveStrategy {
                     bestMove = moveDone;
                 }
 
-                game.move(coordinates, pieceCoordinates);
+                game.putPieceOnBoard(pieceCoordinates.letterNumber(), pieceCoordinates.number(), piece);
                 game.putPieceOnBoard(coordinates.letterNumber(), coordinates.number(), previous);
             }
 
