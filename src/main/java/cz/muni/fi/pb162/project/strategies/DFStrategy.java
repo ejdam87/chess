@@ -15,7 +15,7 @@ import java.util.Set;
  */
 public class DFStrategy implements MoveStrategy {
 
-    public static final int DEPTH = 4;
+    public static final int DEPTH = 2;
     public static final int MIN = 0;
     public static final int MAX = 1;
 
@@ -31,7 +31,7 @@ public class DFStrategy implements MoveStrategy {
             return Pair.of(move, score);
         }
 
-        int bestScore = state == MAX ? -1 : 100000000;
+        int bestScore = state == MAX ? -10000000 : 100000000;
         Pair<Coordinates, Coordinates> bestMove = null;
 
         Piece[] myPieces = game.getBoard().getAllByColor(me.color());
