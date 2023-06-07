@@ -61,9 +61,19 @@ public class Board implements Originator<Memento> {
     /**
      * Method to decide whether there is any piece on given coordinates
      *
+     * @param coordinates Coordinates to check
+     * @return true if there is no piece on given coordinates
+     */
+    public boolean isEmpty(Coordinates coordinates) {
+        return isEmpty(coordinates.letterNumber(), coordinates.number());
+    }
+
+    /**
+     * Method to decide whether there is any piece on given coordinates
+     *
      * @param row - index of row
      * @param col - index of column
-     * @return if there is no piece on given coordinates
+     * @return true if there is no piece on given coordinates
      */
     public boolean isEmpty(int row, int col) {
         return !inRange(row, col) || squares[row][col] == null;

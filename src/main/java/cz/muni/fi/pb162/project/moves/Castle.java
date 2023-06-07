@@ -51,14 +51,18 @@ public class Castle implements Move {
 
         if (checkSides(row, 1, game)) {
             Piece possibleRook = game.getBoard().getPiece(row, Board.SIZE - 1);
-            if (possibleRook.getPieceType() == PieceType.ROOK && possibleRook.getColor() == color) {
+            if (possibleRook != null
+                    && possibleRook.getPieceType() == PieceType.ROOK
+                    && possibleRook.getColor() == color) {
                 res.add(new Coordinates(row, Board.SIZE - 2));
             }
         }
 
         if (checkSides(row, -1, game)) {
             Piece possibleRook = game.getBoard().getPiece(row, 0);
-            if (possibleRook.getPieceType() == PieceType.ROOK && possibleRook.getColor() == color) {
+            if (possibleRook != null
+                    && possibleRook.getPieceType() == PieceType.ROOK
+                    && possibleRook.getColor() == color) {
                 res.add(new Coordinates(row, 1));
             }
         }

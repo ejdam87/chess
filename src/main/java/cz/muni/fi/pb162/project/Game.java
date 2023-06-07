@@ -31,6 +31,9 @@ public abstract class Game implements Playable {
     private MoveStrategy strategyTwo = new ConsolePlayer();
     private StateOfGame stateOfGame = StateOfGame.PLAYING;
 
+    // Storing last move to evaluate possibility of "en passant"
+    private Pair<Coordinates, Coordinates> lastMove = null;
+
     protected Game(Player p1,
                    Player p2,
                    Board board,
@@ -107,6 +110,15 @@ public abstract class Game implements Playable {
      */
     public Player getOpposingPlayer() {
         return getCurrentPlayer().equals(playerTwo) ? playerOne : playerTwo;
+    }
+
+    /**
+     * Returns last performed move
+     *
+     * @return last performed move
+     */
+    public Pair<Coordinates, Coordinates> getLastMove() {
+        return lastMove;
     }
 
     /**
@@ -193,6 +205,18 @@ public abstract class Game implements Playable {
     }
 
     /**
+     * Method to perform "en passant" move
+     *
+     * @param from Coordinates of pawn
+     * @param to   Coordinates where to move
+     */
+    public void performEnPassant(Coordinates from, Coordinates to) {
+        Coordinates midStop = new Coordinates(from.letterNumber(), to.number());
+        move(from, midStop);
+        move(midStop, to);
+    }
+
+    /**
      * Method to perform "castle" move
      *
      * @param from Coordinates of king
@@ -260,13 +284,19 @@ public abstract class Game implements Playable {
             return;
         }
 
-        if (toMove.getPieceType() == PieceType.KING && (Math.abs(from.number() - to.number()) > 1)) {
+        // wants to perform en-passant
+        if (toMove.getPieceType() == PieceType.PAWN && to.number() != from.number() && board.isEmpty(to)) {
+            performEnPassant(from, to);
+            // wants to perform castle
+        } else if (toMove.getPieceType() == PieceType.KING && (Math.abs(from.number() - to.number()) > 1)) {
             performCastle(from, to);
+            // wants to perform basic move
         } else {
             move(from, to);
         }
 
         board.setRound(board.getRound() + 1);
+        lastMove = Pair.of(from, to);
         updateStatus();
     }
 
