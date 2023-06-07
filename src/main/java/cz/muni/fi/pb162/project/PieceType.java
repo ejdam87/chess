@@ -26,6 +26,16 @@ public enum PieceType {
     DRAUGHTS_MAN,
     DRAUGHTS_KING;
 
+    private static final Map<PieceType, Integer> VALUES = new HashMap<>() {{
+        put(PieceType.KING, 1);
+        put(PieceType.QUEEN, 9);
+        put(PieceType.PAWN, 1);
+        put(PieceType.ROOK, 5);
+        put(PieceType.KNIGHT, 3);
+        put(PieceType.BISHOP, 3);
+
+    }};
+
     private static final Map<Pair<PieceType, Color>, ImageIcon> ICONS = new HashMap<>() {{
         put(Pair.of(PieceType.KING, Color.WHITE), IconLoader.loadImage("textures/king_white.png"));
         put(Pair.of(PieceType.QUEEN, Color.WHITE), IconLoader.loadImage("textures/queen_white.png"));
@@ -70,6 +80,21 @@ public enum PieceType {
         return SYMBOLS.getOrDefault(Pair.of(this, color), "");
     }
 
+    /**
+     * Returns the value (or cost) of this piece type
+     *
+     * @return value of this piece type
+     */
+    public int getValue() {
+        return VALUES.get(this);
+    }
+
+    /**
+     * Returns icon of piece type with given olor
+     *
+     * @param color color to get
+     * @return icon of piece
+     */
     public ImageIcon getIcon(Color color) {
         return ICONS.getOrDefault(Pair.of(this, color), null);
     }

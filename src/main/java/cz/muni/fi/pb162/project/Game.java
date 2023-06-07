@@ -95,6 +95,16 @@ public abstract class Game implements Playable {
     }
 
     /**
+     * Returns other player to given player
+     *
+     * @param player player to get opposite from
+     * @return opposite player to given player
+     */
+    public Player getOtherPlayer(Player player) {
+        return player.equals(playerOne) ? playerTwo : playerOne;
+    }
+
+    /**
      * Method to get player which is on the move
      *
      * @return player on the move
@@ -160,6 +170,22 @@ public abstract class Game implements Playable {
         for (Piece piece : pieces) {
             res.addAll(getMovesByPiece(piece));
         }
+        return res;
+    }
+
+    /**
+     * Returns sum of costs of all pieces of player of given color
+     *
+     * @param color color of player to evaluate
+     * @return sum of costs of all pieces of given color
+     */
+    public int getTotalValueOf(Color color) {
+        Piece[] pieces = board.getAllByColor(color);
+        int res = 0;
+        for (Piece piece : pieces) {
+            res += piece.getPieceType().getValue();
+        }
+
         return res;
     }
 
