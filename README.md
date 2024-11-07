@@ -1,6 +1,6 @@
 # Chess
 
-This is OOP implementation of classic chess game with usage of Java standard library.
+This is an OOP implementation of classic chess game with usage of Java standard library.
 
 ## Functionality
 Besides playing against human players, there are also a couple of bot implementations (strategies). Namely, a bot making random moves, and the bot trying to estimate the best move based on min-max algorithm.
